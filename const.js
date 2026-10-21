@@ -1,0 +1,7 @@
+const DEPLOY_GLOBAL_CMDS_ARG = 'g';
+const DEFAULT_COOLDOWN = 1;
+
+module.exports = {
+	DEFAULT_COOLDOWN,
+	DEPLOY_GLOBAL_CMDS_ARG,
+};

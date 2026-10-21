@@ -3,7 +3,7 @@ const { clientId, guildId, token } = require('./config.json');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEPLOY_GLOBAL_CMDS_ARG = 'all';
+const { DEPLOY_GLOBAL_CMDS_ARG } = require('./const.js');
 
 const commands = [];
 // Grab all the command folders from the commands directory you created earlier
