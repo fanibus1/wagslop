@@ -1,9 +1,11 @@
-const { REST, Routes } = require('discord.js');
-const { clientId, guildId, token } = require('./config.json');
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { REST, Routes } from 'discord.js';
+import { config } from './config';
+import { DEPLOY_GLOBAL_CMDS_ARG } from './const';
+import type { Command } from './types';
 
-const { DEPLOY_GLOBAL_CMDS_ARG } = require('./const.js');
+const { clientId, guildId, token } = config;
 
 const commands = [];
 // Grab all the command folders from the commands directory you created earlier
@@ -19,8 +21,8 @@ for (const folder of commandFolders) {
 	// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
-		const command = require(filePath);
-		if ('data' in command && 'execute' in command) {
+		const command: Command | undefined = require(filePath).default;
+		if (command && 'data' in command && 'execute' in command) {
 			commands.push(command.data.toJSON());
 		} else {
 			console.log(
@@ -56,14 +58,13 @@ const rest = new REST().setToken(token);
 		} else {
 			console.log('Deploying GLOBALLY');
 			// deploy global commands
-			data = await rest.put(
-				Routes.applicationCommands(clientId, guildId),
-				{ body: commands },
-			);
+			data = await rest.put(Routes.applicationCommands(clientId), {
+				body: commands,
+			});
 		}
 
 		console.log(
-			`Successfully reloaded ${data.length} application (/) commands.`,
+			`Successfully reloaded ${(data as unknown[]).length} application (/) commands.`,
 		);
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!
