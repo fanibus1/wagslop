@@ -1,7 +1,8 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { LOGGER } = require('../../logger.js');
+import { SlashCommandBuilder } from 'discord.js';
+import { LOGGER } from '../../logger';
+import type { Command } from '../../types';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('reload')
 		.setDescription('Reloads a command.')
@@ -28,7 +29,7 @@ module.exports = {
 		delete require.cache[require.resolve(`./${command.data.name}.js`)];
 
 		try {
-			const newCommand = require(`./${command.data.name}.js`);
+			const newCommand: Command = require(`./${command.data.name}.js`).default;
 			interaction.client.commands.set(newCommand.data.name, newCommand);
 			await interaction.reply(
 				`Command \`${newCommand.data.name}\` was reloaded!`,
@@ -38,8 +39,8 @@ module.exports = {
 			LOGGER.error(error);
 
 			await interaction.reply(
-				`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``,
+				`There was an error while reloading a command \`${command.data.name}\`:\n\`${(error as Error).message}\``,
 			);
 		}
 	},
-};
+} satisfies Command;

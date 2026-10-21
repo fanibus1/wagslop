@@ -1,9 +1,10 @@
-const { Events, MessageFlags, Collection } = require('discord.js');
-const { DEFAULT_COOLDOWN } = require('../const.js');
-const { LOGGER } = require('../logger.js');
+import { Collection, Events, MessageFlags } from 'discord.js';
+import { DEFAULT_COOLDOWN } from '../const';
+import { LOGGER } from '../logger';
+import type { Event } from '../types';
 
 // Receive chat input command interactions
-module.exports = {
+export default {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -27,20 +28,22 @@ module.exports = {
 			// COOLDOWNS
 			const { cooldowns } = interaction.client;
 
-			if (!cooldowns.has(command.data.name)) {
-				cooldowns.set(command.data.name, new Collection());
+			let timestamps = cooldowns.get(command.data.name);
+			if (!timestamps) {
+				timestamps = new Collection();
+				cooldowns.set(command.data.name, timestamps);
 			}
 
 			const now = Date.now();
-			const timestamps = cooldowns.get(command.data.name);
 			const cooldownAmount =
 				(command.cooldown ?? DEFAULT_COOLDOWN) * 1_000;
+			const lastUsed = timestamps.get(interaction.user.id);
 
-			if (timestamps.has(interaction.user.id)) {
-				const expirationTime =
-					timestamps.get(interaction.user.id) + cooldownAmount;
+			if (lastUsed !== undefined) {
+				const expirationTime = lastUsed + cooldownAmount;
+				const waitTime = expirationTime - now;
 
-				if ((waitTime = expirationTime - now) > 0) {
+				if (waitTime > 0) {
 					LOGGER.debug(
 						`User ${interaction.user.id} must wait ${waitTime / 1_000} s for command \`${command.data.name}\` (cooldown ${cooldownAmount / 1_000} s)`,
 					);
@@ -79,4 +82,4 @@ module.exports = {
 			}
 		}
 	},
-};
+} satisfies Event<Events.InteractionCreate>;

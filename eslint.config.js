@@ -1,7 +1,10 @@
 const js = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
 module.exports = [
+	{ ignores: ['dist/'] },
 	js.configs.recommended,
+	...tseslint.configs.recommended,
 	{
 		languageOptions: {
 			ecmaVersion: 'latest',
@@ -33,6 +36,8 @@ module.exports = [
 			'no-trailing-spaces': ['error'],
 			'no-var': 'error',
 			'no-undef': 'off',
+			// commands and events are loaded dynamically with require()
+			'@typescript-eslint/no-require-imports': 'off',
 			'object-curly-spacing': ['error', 'always'],
 			'prefer-const': 'error',
 			quotes: ['error', 'single'],
