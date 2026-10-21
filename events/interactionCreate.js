@@ -13,9 +13,9 @@ module.exports = {
 		);
 
 		if (!command) {
-			LOGGER.error(
-				`No command matching ${interaction.commandName} was found.`,
-			);
+			const err = `No command matching ${interaction.commandName} was found.`;
+			console.error(err);
+			LOGGER.error(err);
 			return;
 		}
 
